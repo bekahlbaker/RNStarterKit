@@ -3,6 +3,7 @@ package com.mybridge;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.oblador.keychain.KeychainPackage;
 import com.RNTextInputMask.RNTextInputMaskPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.wix.reactnativenotifications.RNNotificationsPackage;
@@ -26,6 +27,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new KeychainPackage(),
             new RNTextInputMaskPackage(),
             new VectorIconsPackage(),
             new RNNotificationsPackage(MainApplication.this)

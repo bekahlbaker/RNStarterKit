@@ -4,7 +4,7 @@ import { Container, Content, View, Text } from 'native-base';
 import { SearchBar, Icon } from 'react-native-elements';
 import globalStyles from '../global/styles';
 
-/* eslint-disable react/prop-types */
+/* eslint-disable react/prop-types, react/jsx-filename-extension */
 
 export default class MessagingList extends Component {
   static navigationOptions = {
@@ -56,9 +56,11 @@ export default class MessagingList extends Component {
          {"name": "Paola Morgan"}
       ],
     }
+
+    this.handleSelectNameToViewMessage = this.handleSelectNameToViewMessage.bind(this);
   }
 
-  handleSelectNameToViewMessage = (name) => {
+  handleSelectNameToViewMessage(name) {
     this.props.navigation.navigate('message', {name});
   }
 

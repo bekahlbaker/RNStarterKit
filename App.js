@@ -1,77 +1,62 @@
-import React from 'react';
-// import { Provider } from 'react-redux';
-// import { createStore, applyMiddleware } from 'redux';
-import { StackNavigator, TabNavigator } from 'react-navigation';
+import React, { Component } from 'react';
+import * as Keychain from 'react-native-keychain';
+import { createRootNavigator } from './src/router';
+import SplashScreen from './src/containers/splashScreen';
 
-// Stack Navigator
-import welcome from './src/containers/welcome';
-import signUp from './src/containers/signUp';
-import login from './src/containers/login';
-
-// Tab Navigator
-import history from './src/containers/history';
-import newsfeed from './src/containers/newsfeed';
-import submitStory from './src/containers/submitStory';
-import messagingList from './src/containers/messagingList';
-import message from './src/containers/message';
-import profile from './src/containers/profile';
-// import reducers from './src/reducers';
-
+// Redux
+import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import reducers from './src/reducers';
 
 /* eslint-disable react/jsx-filename-extension, react/prop-types */
 
-// const createStoreWithMiddleWare = applyMiddleware(thunk)(createStore);
+const createStoreWithMiddleWare = applyMiddleware(thunk)(createStore);
 
-const MessageStack = StackNavigator (
-  {
-    messagingList: { screen: messagingList },
-    message: { screen: message },
+class App extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      signedIn: null,
+    };
   }
-)
 
-const TabRoot = TabNavigator (
-  {
-    history: { screen: history },
-    newsfeed: { screen: newsfeed },
-    submitStory: { screen: submitStory },
-    messaging: { screen: MessageStack },
-    profile: { screen: profile },
-  }, {
-    tabBarOptions: {
-      activeTintColor: 'blue',
-      inactiveTintColor: '#999999',
-      showLabel: false,
-      showIcon: true,
-      lazy: true,
-      style: {
-        backgroundColor: '#DEDEDE',
-      },
-    },
-  },
-)
+  componentWillMount() {
+    Keychain
+      .getGenericPassword()
+      .then((credentials) => {
+        if (credentials) {
+          setTimeout(() => {
+            this.setState({ signedIn: true });
+          }, 2000);
+        } else {
+          setTimeout(() => {
+            this.setState({ signedIn: true });
+          }, 2000);
+        }
+      })
+      .catch((err) => {
+        console.log(`Could not load credentials. ${err}`);
+        setTimeout(() => {
+          this.setState({ signedIn: true });
+        }, 2000);
+      });
+  }
 
-const NavRoot = StackNavigator(
-  {
-    welcome: { screen: welcome },
-    signUp: { screen: signUp },
-    login: { screen: login },
-    newsfeed: {screen: TabRoot },
-  },
-    {
-      headerMode: 'none',
-      navigationOptions: {
-      headerVisible: false,
-      gesturesEnabled: false
+  render() {
+    if (this.state.signedIn === null) {
+      return <SplashScreen />;
     }
-  }
-);
 
-const App = () => {
-  return (
-    // <Provider store={createStoreWithMiddleWare(reducers)}>
-      <NavRoot />
-    // </Provider>
-  );
-};
+    const Layout = createRootNavigator(this.state.signedIn);
+
+    return (
+      <Provider store={createStoreWithMiddleWare(reducers)}>
+        <Layout />
+      </Provider>
+    );
+  }
+}
 
 export default App;

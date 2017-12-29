@@ -6,7 +6,7 @@ import globalStyles from '../global/styles';
 
 import NewsfeedCardItem from './newsfeedCardItem';
 
-/* eslint-disable react/prop-types */
+/* eslint-disable react/prop-types, react/jsx-filename-extension */
 
 const items = [
       {
