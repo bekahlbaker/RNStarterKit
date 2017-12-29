@@ -186,10 +186,10 @@ export default styles = {
 
   // Logo
   logo: {
-    backgroundColor: '#D7D8D9',
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    backgroundColor: 'transparent',
+    width: 250,
+    height: 75,
+    borderRadius: 10,
     marginTop: 50,
   },
 

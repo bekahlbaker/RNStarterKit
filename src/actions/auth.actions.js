@@ -61,7 +61,7 @@ export function newUser(credentials) {
 }
 
 export function emailAuth(credentials) {
-  const loginSuccess = false;
+  const loginSuccess = true;
   console.log(credentials);
   return (dispatch) => {
     // post to API with credentials

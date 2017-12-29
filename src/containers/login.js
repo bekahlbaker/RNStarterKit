@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, Image } from 'react-native';
 import { Container, Content, View, Button, Text } from 'native-base';
 import { CheckBox, SocialIcon } from 'react-native-elements';
 import * as Keychain from 'react-native-keychain';
@@ -7,6 +7,7 @@ import t from 'tcomb-form-native';
 import { connect } from 'react-redux';
 import { emailAuth } from '../../src/actions/auth.actions';
 import globalStyles from '../global/styles';
+import Logo from '../../src/assets/FakeLogo.png';
 
 /* eslint-disable react/prop-types, react/jsx-filename-extension */
 
@@ -125,7 +126,7 @@ class Login extends Component {
           contentContainerStyle={globalStyles.scrollView}
         >
           <View style={globalStyles.view}>
-            <View style={globalStyles.logo} />
+            <Image style={globalStyles.logo} source={Logo} />
           </View>
 
           <View style={globalStyles.view}>

@@ -28,18 +28,18 @@ class App extends Component {
       .then((credentials) => {
         if (credentials) {
           setTimeout(() => {
-            this.setState({ signedIn: true });
+            this.setState({ signedIn: false });
           }, 2000);
         } else {
           setTimeout(() => {
-            this.setState({ signedIn: true });
+            this.setState({ signedIn: false });
           }, 2000);
         }
       })
       .catch((err) => {
         console.log(`Could not load credentials. ${err}`);
         setTimeout(() => {
-          this.setState({ signedIn: true });
+          this.setState({ signedIn: false });
         }, 2000);
       });
   }
