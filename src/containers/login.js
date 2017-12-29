@@ -1,88 +1,174 @@
 import React, { Component } from 'react';
-import { Image, TouchableOpacity } from 'react-native';
-import { Container, Content, View, Button, Text, Input, Form, Spinner, Item, Label } from 'native-base';
-import { CheckBox } from 'react-native-elements';
+import { TouchableOpacity, Image } from 'react-native';
+import { Container, Content, View, Button, Text } from 'native-base';
+import { CheckBox, SocialIcon } from 'react-native-elements';
+import * as Keychain from 'react-native-keychain';
+import t from 'tcomb-form-native';
+import { connect } from 'react-redux';
+import { emailAuth } from '../../src/actions/auth.actions';
 import globalStyles from '../global/styles';
+import Logo from '../../src/assets/FakeLogo.png';
 
-/* eslint-disable react/prop-types */
+/* eslint-disable react/prop-types, react/jsx-filename-extension */
 
-export default class LoginScreen extends Component {
-
+class Login extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      username: '',
-      password: '',
+      value: {},
       checked: false,
+      emailHasError: false,
+      emailError: '',
+      passwordHasError: false,
+      passwordError: '',
     };
+
+    this.User = t.struct({
+      username: t.String,
+      password: t.String,
+    });
+
+    this.onChange = this.onChange.bind(this);
+    this.handleCheckButton = this.handleCheckButton.bind(this);
+    this.handleRegisterHereButton = this.handleRegisterHereButton.bind(this);
+    this.handleLoginButton = this.handleLoginButton.bind(this);
   }
 
-  handleCheckButton = () => {
-    this.setState({ checked: !this.state.checked })
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.user) {
+      this.props.navigation.navigate('SignedIn');
+    }
+
+    if (nextProps.authError) {
+      this.setState({ passwordHasError: true, passwordError: nextProps.authError.password });
+      this.setState({ emailHasError: true, emailError: nextProps.authError.email });
+    }
   }
 
-  handleRegisterHereButton = () => {
+  onChange(value) {
+    this.setState({ value });
+  }
+
+  handleCheckButton() {
+    this.setState({ checked: !this.state.checked }, () => {
+      if (this.state.checked) {
+        if (this.state.value.username && this.state.value.password) {
+          Keychain
+            .setGenericPassword(this.state.value.email, this.state.value.password)
+            .then(() => {
+              console.log('Credentials saved!');
+            })
+            .catch((err) => {
+              console.log(`Could not save credentials ${err}`);
+            });
+        }
+      } else {
+        Keychain
+          .resetGenericPassword()
+          .then(() => {
+            console.log('Credentials successfully deleted');
+          });
+      }
+    });
+  }
+
+  handleRegisterHereButton() {
     this.props.navigation.navigate('signUp');
   }
 
-  handleLoginButton = () => {
-    this.props.navigation.navigate('newsfeed');
+  handleLoginButton() {
+    console.log('VALUE -> ', this.state.value);
+    const value = this.form.getValue();
+    if (value) {
+      console.log('value: ', value);
+      this.props.emailAuth(value);
+    }
   }
 
   render() {
+    const loginStyles = {
+      forgotPasswordRow: {
+        justifyContent: 'space-between',
+        marginTop: 0,
+      },
+      registerHereRow: {
+        marginTop: 20,
+        justifyContent: 'center',
+      },
+      registerHereButton: {
+        marginLeft: 8,
+      },
+    };
+
+    const formOptions = {
+      fields: {
+        username: {
+          hasError: this.state.emailHasError,
+          error: this.state.emailError,
+        },
+        password: {
+          hasError: this.state.passwordHasError,
+          error: this.state.passwordError,
+          password: true,
+          secureTextEntry: true,
+        },
+      },
+      stylesheet: globalStyles.formStyles,
+    };
+
+
     return (
       <Container style={globalStyles.container}>
         <Content
           showsHorizontalScrollIndicator={false}
-          directionalLockEnabled={true}
+          directionalLockEnabled
           contentContainerStyle={globalStyles.scrollView}
         >
           <View style={globalStyles.view}>
-            <View style={globalStyles.logo} />
+            <Image style={globalStyles.logo} source={Logo} />
           </View>
 
           <View style={globalStyles.view}>
-            <Form style={globalStyles.form}>
-
-              <Label style={globalStyles.inputLabel}>Username</Label>
-              <Item style={globalStyles.item}>
-                <Input
-                  style={globalStyles.input}
-                  value={this.state.username}
-                  onChangeText={(username) => this.setState({ username })}
-                />
-              </Item>
-
-              <Label style={globalStyles.inputLabel}>Password</Label>
-              <Item style={globalStyles.item}>
-                <Input
-                  style={globalStyles.input}
-                  secureTextEntry={true}
-                  value={this.state.password}
-                  onChangeText={(password) => this.setState({ password })}
-                />
-              </Item>
-
-            </Form>
+            <t.form.Form
+              ref={c => this.form = c}
+              type={this.User}
+              options={formOptions}
+              value={this.state.value}
+              onChange={value => this.onChange(value)}
+            />
           </View>
 
           <View style={[globalStyles.rowView, loginStyles.forgotPasswordRow]}>
             <CheckBox
-              title='Remember me'
+              title="Remember me"
               checked={this.state.checked}
               containerStyle={globalStyles.checkBox}
               textStyle={globalStyles.boldText}
               onPress={this.handleCheckButton}
             />
 
-            <TouchableOpacity
-            >
-              <Text style={globalStyles.buttonTextOnly}>Forgot password?</Text>
+            <TouchableOpacity>
+              <Text style={[globalStyles.buttonTextOnly, { marginTop: 8 }]}>Forgot password?</Text>
             </TouchableOpacity>
           </View>
 
+          <View style={globalStyles.view}>
+            <Text style={globalStyles.regularText}>OR</Text>
+          </View>
+
           <View>
+            <TouchableOpacity>
+              <SocialIcon
+                title="Sign In With Facebook"
+                button
+                type="facebook"
+                style={{ width: 300 }}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <View style={globalStyles.buttonView}>
             <Button
               style={globalStyles.button}
               onPress={this.handleLoginButton}
@@ -96,7 +182,9 @@ export default class LoginScreen extends Component {
             <TouchableOpacity
               onPress={this.handleRegisterHereButton}
             >
-              <Text style={[globalStyles.buttonTextOnly, loginStyles.registerHereButton]}>Register Here</Text>
+              <Text style={[globalStyles.buttonTextOnly, loginStyles.registerHereButton]}>
+                Register Here
+              </Text>
             </TouchableOpacity>
           </View>
         </Content>
@@ -105,17 +193,11 @@ export default class LoginScreen extends Component {
   }
 }
 
-const loginStyles = {
-  forgotPasswordRow: {
-    justifyContent: 'space-between',
-    marginBottom: 100,
-    marginTop: -20,
-  },
-  registerHereRow: {
-    marginTop: 20,
-    justifyContent: 'center',
-  },
-  registerHereButton: {
-    marginLeft: 8,
-  },
+const mapStateToProps = (state) => {
+  return {
+    user: state.user,
+    authError: state.authError,
+  };
 };
+
+export default connect(mapStateToProps, { emailAuth })(Login);

@@ -4,10 +4,10 @@ import { Container, Content, View, CardItem, Text, Card, List, Left } from 'nati
 import { SearchBar, Icon } from 'react-native-elements';
 import globalStyles from '../global/styles';
 
-/* eslint-disable react/prop-types */
+/* eslint-disable react/prop-types, react/jsx-filename-extension */
 
 export default class NewsfeedCardItem extends Component {
-  
+
   constructor(props) {
     super(props);
 
@@ -139,7 +139,7 @@ export default class NewsfeedCardItem extends Component {
               </View>
 
               <View style={{ flex: 1 }}>
-                <Text style={cardItemStyles.timeText}>2m ago</Text>
+                <Text style={cardItemStyles.timeText}>2\m ago</Text>
               </View>
 
               </View>

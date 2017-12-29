@@ -3,14 +3,35 @@ import { Image } from 'react-native';
 import { Container, Content, View, Button, Text, Input, Form, Spinner, Item, Label } from 'native-base';
 import globalStyles from '../global/styles';
 
-/* eslint-disable react/prop-types */
+/* eslint-disable react/prop-types, react/jsx-filename-extension */
+
+
+const welcomeStyles = {
+  message: {
+    marginLeft: 32,
+    marginRight: 32,
+    marginTop: 30,
+    marginBottom: 75,
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#999999',
+    textAlign: 'center',
+  },
+};
 
 export default class WelcomeScreen extends Component {
-  handleLoginButton = () => {
+  constructor() {
+    super();
+
+    this.handleLoginButton = this.handleLoginButton.bind(this);
+    this.handleSignUpButton = this.handleSignUpButton.bind(this);
+  }
+
+  handleLoginButton() {
     this.props.navigation.navigate('login');
   }
 
-  handleSignUpButton = () => {
+  handleSignUpButton() {
     this.props.navigation.navigate('signUp');
   }
 
@@ -19,7 +40,7 @@ export default class WelcomeScreen extends Component {
       <Container style={globalStyles.container}>
         <Content
           showsHorizontalScrollIndicator={false}
-          directionalLockEnabled={true}
+          directionalLockEnabled
           contentContainerStyle={globalStyles.scrollView}
         >
           <View style={globalStyles.view}>
@@ -42,28 +63,15 @@ export default class WelcomeScreen extends Component {
           </View>
 
           <View>
-          <Button
-            style={globalStyles.button}
-            onPress={this.handleSignUpButton}
-          >
-            <Text style={globalStyles.buttonText}>Sign Up</Text>
-          </Button>
+            <Button
+              style={globalStyles.button}
+              onPress={this.handleSignUpButton}
+            >
+              <Text style={globalStyles.buttonText}>Sign Up</Text>
+            </Button>
           </View>
         </Content>
       </Container>
     );
   }
 }
-
-const welcomeStyles = {
-  message: {
-    marginLeft: 32,
-    marginRight: 32,
-    marginTop: 30,
-    marginBottom: 75,
-    fontSize: 13,
-    fontWeight: 'bold',
-    color: '#999999',
-    textAlign: 'center',
-  },
-};

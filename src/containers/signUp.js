@@ -1,80 +1,139 @@
 import React, { Component } from 'react';
-import { Image, TouchableOpacity } from 'react-native';
-import { Container, Content, View, Button, Text, Input, Form, Spinner, Item, Label } from 'native-base';
-import { CheckBox, SocialIcon } from 'react-native-elements';
+import { TouchableOpacity, Image } from 'react-native';
+import { Container, Content, View, Button, Text } from 'native-base';
+import { SocialIcon } from 'react-native-elements';
+import t from 'tcomb-form-native';
+import { connect } from 'react-redux';
+import { newUser } from '../../src/actions/auth.actions';
 import globalStyles from '../global/styles';
+import Logo from '../../src/assets/FakeLogo.png';
 
-/* eslint-disable react/prop-types */
+/* eslint-disable react/prop-types, react/jsx-filename-extension */
 
-export default class LoginScreen extends Component {
-
+class SignUp extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      username: '',
-      email:'',
-      password: '',
-      checked: false,
+      value: {},
+      emailHasError: false,
+      emailError: '',
     };
+
+    this.email = t.refinement(t.String, (email) => {
+      const reg = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+      return reg.test(email);
+    });
+
+    this.password = t.refinement(t.String, password => password.length >= 6);
+
+    this.passwordConfirm = t.refinement(t.String, passwordConfirm => passwordConfirm === this.state.value.password);
+
+    this.notARobot = t.refinement(t.Boolean, value => value === true);
+
+    this.User = t.struct({
+      email: this.email,
+      username: t.String,
+      password: this.password,
+      passwordConfirm: this.passwordConfirm,
+      notARobot: this.notARobot,
+    });
+
+    this.onChange = this.onChange.bind(this);
+    this.handleSignUpButton = this.handleSignUpButton.bind(this);
+    this.handleLoginButton = this.handleLoginButton.bind(this);
   }
 
-  handleCheckButton = () => {
-    this.setState({ checked: !this.state.checked })
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.user) {
+      this.props.navigation.navigate('SignedIn');
+    }
+
+    if (nextProps.authError) {
+      this.setState({ emailHasError: true, emailError: nextProps.authError.email });
+    }
   }
 
-  handleSignUpButton = () => {
-    this.props.navigation.navigate('newsfeed');
+  onChange(value) {
+    this.setState({ value });
   }
 
-  handleLoginButton = () => {
+  handleSignUpButton() {
+    console.log('VALUE -> ', this.state.value);
+    const value = this.form.getValue();
+    if (value) {
+      console.log('value: ', value);
+      this.props.newUser(value);
+    }
+  }
+
+  handleLoginButton() {
     this.props.navigation.navigate('login');
   }
 
   render() {
+    const signUpStyles = {
+      termsOfUseRow: {
+        marginTop: 20,
+        justifyContent: 'center',
+      },
+      loginRow: {
+        marginTop: 20,
+        justifyContent: 'center',
+      },
+      loginButton: {
+        marginLeft: 8,
+      },
+      facebookButton: {
+        width: 300,
+      },
+    };
+
+    const formOptions = {
+      fields: {
+        email: {
+          hasError: this.state.emailHasError,
+          error: this.state.emailError ? this.state.emailError : 'Please enter a valid email address.',
+        },
+        username: {
+          error: 'Please choose a username.',
+        },
+        password: {
+          error: 'Password needs to be at least 6 characters.',
+          password: true,
+          secureTextEntry: true,
+        },
+        passwordConfirm: {
+          error: 'Please make sure passwords match.',
+          password: true,
+          secureTextEntry: true,
+        },
+        notARobot: {
+          label: 'I\'m not a robot!',
+        },
+      },
+      stylesheet: globalStyles.formStyles,
+    };
+
     return (
       <Container style={globalStyles.container}>
         <Content
           showsHorizontalScrollIndicator={false}
-          directionalLockEnabled={true}
+          directionalLockEnabled
           contentContainerStyle={globalStyles.scrollView}
         >
           <View style={globalStyles.view}>
-            <View style={globalStyles.logo} />
+            <Image style={globalStyles.logo} source={Logo} />
           </View>
 
           <View style={globalStyles.view}>
-            <Form style={globalStyles.form}>
-
-              <Label style={globalStyles.inputLabel}>Username</Label>
-              <Item style={globalStyles.item}>
-                <Input
-                  style={globalStyles.input}
-                  value={this.state.username}
-                  onChangeText={(username) => this.setState({ username })}
-                />
-              </Item>
-
-              <Label style={globalStyles.inputLabel}>Email</Label>
-              <Item style={globalStyles.item}>
-                <Input
-                  style={globalStyles.input}
-                  value={this.state.email}
-                  onChangeText={(email) => this.setState({ email })}
-                />
-              </Item>
-
-              <Label style={globalStyles.inputLabel}>Password</Label>
-              <Item style={globalStyles.item}>
-                <Input
-                  style={globalStyles.input}
-                  secureTextEntry={true}
-                  value={this.state.password}
-                  onChangeText={(password) => this.setState({ password })}
-                />
-              </Item>
-
-            </Form>
+            <t.form.Form
+              ref={c => this.form = c}
+              type={this.User}
+              options={formOptions}
+              value={this.state.value}
+              onChange={value => this.onChange(value)}
+            />
           </View>
 
           <View style={globalStyles.view}>
@@ -84,25 +143,15 @@ export default class LoginScreen extends Component {
           <View>
             <TouchableOpacity>
               <SocialIcon
-                title='Sign In With Facebook'
+                title="Sign In With Facebook"
                 button
-                type='facebook'
+                type="facebook"
                 style={signUpStyles.facebookButton}
               />
             </TouchableOpacity>
           </View>
 
-          <View style={[globalStyles.rowView]}>
-            <CheckBox
-              title='Im not a robot!'
-              checked={this.state.checked}
-              containerStyle={globalStyles.checkBox}
-              textStyle={globalStyles.boldText}
-              onPress={this.handleCheckButton}
-            />
-          </View>
-
-          <View>
+          <View style={globalStyles.buttonView}>
             <Button
               style={globalStyles.button}
               onPress={this.handleSignUpButton}
@@ -125,7 +174,9 @@ export default class LoginScreen extends Component {
             <TouchableOpacity
               onPress={this.handleLoginButton}
             >
-              <Text style={[globalStyles.buttonTextOnly, signUpStyles.loginButton]}>Login Here</Text>
+              <Text style={[globalStyles.buttonTextOnly, signUpStyles.loginButton]}>
+                Login Here
+              </Text>
             </TouchableOpacity>
           </View>
         </Content>
@@ -134,19 +185,11 @@ export default class LoginScreen extends Component {
   }
 }
 
-const signUpStyles = {
-  termsOfUseRow: {
-    marginTop: 20,
-    justifyContent: 'center',
-  },
-  loginRow: {
-    marginTop: 20,
-    justifyContent: 'center',
-  },
-  loginButton: {
-    marginLeft: 8,
-  },
-  facebookButton: {
-    width: 300,
-  },
+const mapStateToProps = (state) => {
+  return {
+    user: state.user,
+    authError: state.authError,
+  };
 };
+
+export default connect(mapStateToProps, { newUser })(SignUp);

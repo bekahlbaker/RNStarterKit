@@ -4,7 +4,7 @@ import { Container, Content, View, Button, Text, Input, Form, Spinner, Item, Lab
 import { SearchBar, Icon } from 'react-native-elements';
 import globalStyles from '../global/styles';
 
-/* eslint-disable react/prop-types */
+/* eslint-disable react/prop-types, react/jsx-filename-extension */
 
 export default class LoginScreen extends Component {
   static navigationOptions = {

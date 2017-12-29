@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { Image, TouchableOpacity, Platform, Dimensions } from 'react-native';
-import { Container, Content, View, Button, Text, Input, Form, Spinner, Item, Label } from 'native-base';
-import { SearchBar, Icon } from 'react-native-elements';
+import { TouchableOpacity, Platform } from 'react-native';
+import { Container, Content, View, Button, Text, Input, Item } from 'native-base';
+import { Icon } from 'react-native-elements';
 import TextInputMask from 'react-native-text-input-mask';
+import * as Keychain from 'react-native-keychain';
 import globalStyles from '../global/styles';
 
-/* eslint-disable react/prop-types */
+/* eslint-disable react/prop-types, react/jsx-filename-extension */
 
 export default class LoginScreen extends Component {
   static navigationOptions = {
@@ -18,8 +19,8 @@ export default class LoginScreen extends Component {
     ),
   }
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this.state = {
       isEditing: false,
@@ -30,6 +31,17 @@ export default class LoginScreen extends Component {
       address: '1111 Park Lane, Dallas, TX',
       zipcode: '75000'
     }
+
+    this.handleSignOut = this.handleSignOut.bind(this);
+  }
+
+  handleSignOut() {
+    Keychain
+  .resetGenericPassword()
+  .then(function() {
+    console.log('Credentials successfully deleted');
+  });
+  this.props.navigation.navigate('SignedOut');
   }
 
   renderProfileCard() {
@@ -154,6 +166,15 @@ export default class LoginScreen extends Component {
               <Text style={profileStyles.infoText}>Ministry</Text>
           </View>
           </View>
+        </View>
+
+        <View>
+          <Button
+            style={globalStyles.button}
+            onPress={this.handleSignOut}
+          >
+            <Text style={globalStyles.buttonText}>Sign Out</Text>
+          </Button>
         </View>
 
         </Content>

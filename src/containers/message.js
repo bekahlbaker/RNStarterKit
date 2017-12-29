@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import { Image, TouchableOpacity, Platform, FlatList, Keyboard, Animated, Dimensions } from 'react-native';
+import { Image, TouchableOpacity, Platform, FlatList, Keyboard, Animated, Dimensions, ScrollView } from 'react-native';
 import { Container, Content, View, Button, Text, Input, Form, Spinner, Item, Label } from 'native-base';
 import { SearchBar, Icon } from 'react-native-elements';
 import globalStyles from '../global/styles';
 
-/* eslint-disable react/prop-types */
+/* eslint-disable react/prop-types, react/jsx-filename-extension */
 
 export default class Messages extends Component {
   static navigationOptions =  ({ navigation }) => ({
-    title: `${navigation.state.params.name}`,
+    title: 'Messages',
     headerTitleStyle: { alignSelf: 'center' },
 
     tabBarIcon: ({ tintColor }) => (
@@ -108,23 +108,25 @@ export default class Messages extends Component {
          }
       ]
     }
+
+    this.keyboardWillHide = this.keyboardWillHide.bind(this);
+    this.keyboardWillShow = this.keyboardWillShow.bind(this);
   }
 
   componentWillMount() {
+    setTimeout(() => {
+      this.scrollViewRef.scrollToEnd();
+    }, 500);
     this.keyboardWillShowSub = Keyboard.addListener('keyboardWillShow', this.keyboardWillShow);
     this.keyboardWillHideSub = Keyboard.addListener('keyboardWillHide', this.keyboardWillHide);
   }
-
-  // componentDidMount() {
-  //   this.flatListRef.scrollToIndex({animated: false, index: 17 });
-  // }
 
   componentWillUnmount() {
     this.keyboardWillShowSub.remove();
     this.keyboardWillHideSub.remove();
   }
 
-  keyboardWillShow = (event) => {
+  keyboardWillShow(event) {
     const keyboardHeight = Dimensions.get('window').height - event.endCoordinates.height;
     Animated.timing(this.state.marginBottom, {
       duration: event.duration,
@@ -132,31 +134,26 @@ export default class Messages extends Component {
     }).start();
   };
 
-  keyboardWillHide = (event) => {
+  keyboardWillHide(event) {
     Animated.timing(this.state.marginBottom, {
       duration: event.duration,
       toValue: 10,
     }).start();
   };
 
-  getItemLayout = (data, index) => (
-    { length: 50, offset: 50 * index, index }
-  )
-
   render() {
     return (
       <Container style={globalStyles.container}>
-        <Content
+        <ScrollView
           showsHorizontalScrollIndicator={false}
           directionalLockEnabled={true}
           contentContainerStyle={globalStyles.scrollView}
           showsVerticalScrollIndicator={true}
           keyboardShouldPersistTaps="always"
+          ref={(ref) => { this.scrollViewRef = ref; }}
         >
           <View>
             <FlatList
-              ref={(ref) => { this.flatListRef = ref; }}
-              getItemLayout={this.getItemLayout}
               removeClippedSubViews={false}
               keyExtractor={(item) => item.message}
               data={this.state.messages}
@@ -170,7 +167,7 @@ export default class Messages extends Component {
               )}>
               </FlatList>
           </View>
-        </Content>
+        </ScrollView>
 
         <View>
         <Item style={[globalStyles.item, { marginBottom: this.state.marginBottom }]}>
@@ -190,16 +187,16 @@ const messageStyles = {
   messageText: {
     fontSize: 13,
     fontWeight: "100",
-    color: '#999999',
+    color: globalStyles.MAIN_COLOR,
   },
   messageFromSender: {
-    backgroundColor: 'white',
+    backgroundColor: globalStyles.WHITE,
     marginRight: 100,
     margin: 10,
     padding: 10,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: 'white'
+    borderColor: globalStyles.WHITE
   },
   messageFromSelf: {
     backgroundColor: 'pink',
